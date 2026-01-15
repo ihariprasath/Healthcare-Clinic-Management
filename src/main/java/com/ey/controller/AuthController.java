@@ -22,7 +22,7 @@ public class AuthController {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
-	
+
 	public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, com.ey.util.JwtUtil jwtUtil) {
 		super();
 		this.userRepository = userRepository;
@@ -34,7 +34,7 @@ public class AuthController {
 	public ResponseEntity<?> register(@RequestBody AuthRequest request) {
 
 		User user = new User();
-		user.setEmail(request.getEmail());
+		user.setEmail(request.getEmail().toLowerCase().trim());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setRoles(Set.of(Role.PATIENT));
 
@@ -45,15 +45,19 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody AuthRequest request) {
 
-		User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+		User user = userRepository.findByEmail(request.getEmail().toLowerCase().trim())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			return ResponseEntity.status(401).body("Invalid Credentials");
 		}
 
-		String token = jwtUtil.generateToken(user.getEmail());
+		String token = jwtUtil.generateToken(
+				user.getEmail(),
+				user.getRoles().iterator().next().name());
 
 		return ResponseEntity.ok(Map.of("accessToken", token));
 
 	}
+	
 }

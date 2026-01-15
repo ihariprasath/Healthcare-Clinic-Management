@@ -12,14 +12,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+	
+	private final JwtAuthenticationFilter jwtFilter;
+	
+	public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+		this.jwtFilter = jwtFilter;
+	}
+	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(
 						auth -> auth
 						.requestMatchers("/api/v1/auth/**").permitAll()
+						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("patients/**").permitAll()
 						.requestMatchers("/doctors/**").permitAll()
+						.requestMatchers("/appointments/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		return http.build();
