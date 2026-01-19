@@ -13,6 +13,7 @@ import com.ey.dto.AuthResponse;
 import com.ey.dto.ChangePasswordRequest;
 import com.ey.dto.ForgotPasswordRequest;
 import com.ey.dto.LoginRequest;
+import com.ey.dto.RegisterAdminRequest;
 import com.ey.dto.RegisterRequest;
 import com.ey.dto.ResetPasswordOtpRequest;
 import com.ey.exception.ApiResponse;
@@ -40,8 +41,9 @@ public class AuthController {
                 .body(ApiResponse.created(service.register(req), "User registered"));
     }
     @PostMapping("/register-admin")
-    public ApiResponse<AuthResponse> registerAdmin(@RequestBody RegisterRequest req) {
-        return ApiResponse.created(service.registerAdmin(req), "Admin created");
+    public ResponseEntity<AuthResponse> registerAdmin(@RequestBody RegisterAdminRequest req) {
+    	return ResponseEntity.status(201).body(service.registerAdmin(req));
+//        return ApiResponse.created(service.registerAdmin(req), "Admin created");
     }
 
     @PostMapping("/login")

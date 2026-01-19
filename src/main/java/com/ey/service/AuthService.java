@@ -6,14 +6,18 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.ey.config.JwtService;
 import com.ey.dto.AuthResponse;
 import com.ey.dto.ChangePasswordRequest;
 import com.ey.dto.ForgotPasswordRequest;
 import com.ey.dto.LoginRequest;
+import com.ey.dto.RegisterAdminRequest;
 import com.ey.dto.RegisterRequest;
 import com.ey.dto.ResetPasswordOtpRequest;
 import com.ey.entity.Role;
@@ -23,6 +27,8 @@ import com.ey.repository.UserRepository;
 @Service
 public class AuthService {
 
+	@Value("${app.admin.secret}")
+	private String adminSecret;
 	private final UserRepository repo;
 	private final PasswordEncoder encoder;
 	private final JwtService jwt;
@@ -47,21 +53,29 @@ public class AuthService {
 
 		return build(u);
 	}
-	
-	public AuthResponse registerAdmin(RegisterRequest req) {
 
-	    if (repo.existsByEmail(req.getEmail())) {
-	        throw new RuntimeException("Email already registered");
-	    }
+	public AuthResponse registerAdmin(RegisterAdminRequest req) {
 
-	    User u = new User();
-	    u.setName(req.getName());
-	    u.setEmail(req.getEmail());
-	    u.setPassword(encoder.encode(req.getPassword()));
-	    u.setRoles(Set.of(Role.ADMIN));
+//		if (repo.existsByRolesContaining(Role.ADMIN)) {
+//			throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Admin already exists, can't create another admin");
+//		}
+		// ✅ verify secret key
+		if (req.getSecretKey() == null || !req.getSecretKey().equals(adminSecret)) {
+			throw new RuntimeException("Invalid admin secret key");
+		}
 
-	    repo.save(u);
-	    return build(u);
+		if (repo.existsByEmail(req.getEmail())) {
+			throw new RuntimeException("Email already registered");
+		}
+
+		User u = new User();
+		u.setName(req.getName());
+		u.setEmail(req.getEmail());
+		u.setPassword(encoder.encode(req.getPassword()));
+		u.setRoles(Set.of(Role.ADMIN)); // ✅ ADMIN
+		repo.save(u);
+
+		return build(u);
 	}
 
 	public AuthResponse login(LoginRequest req) {
