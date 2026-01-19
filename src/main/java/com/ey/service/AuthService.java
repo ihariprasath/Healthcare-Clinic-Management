@@ -47,6 +47,22 @@ public class AuthService {
 
 		return build(u);
 	}
+	
+	public AuthResponse registerAdmin(RegisterRequest req) {
+
+	    if (repo.existsByEmail(req.getEmail())) {
+	        throw new RuntimeException("Email already registered");
+	    }
+
+	    User u = new User();
+	    u.setName(req.getName());
+	    u.setEmail(req.getEmail());
+	    u.setPassword(encoder.encode(req.getPassword()));
+	    u.setRoles(Set.of(Role.ADMIN));
+
+	    repo.save(u);
+	    return build(u);
+	}
 
 	public AuthResponse login(LoginRequest req) {
 		User u = repo.findByEmail(req.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email/password"));

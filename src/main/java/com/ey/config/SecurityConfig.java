@@ -19,28 +19,37 @@ public class SecurityConfig {
 	public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
 		this.jwtAuthFilter = jwtAuthFilter;
 	}
-
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http.csrf(csrf -> csrf.disable());
+	    http.csrf(csrf -> csrf.disable());
 
-		
-		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	    http.sessionManagement(session ->
+	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	    );
 
-		
-		http.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/logout",
-						"/api/v1/auth/refresh-token", "/api/v1/auth/validate-token", "/api/v1/auth/forgot-password",
-						"/api/v1/auth/reset-password", "/api/v1/auth/reset-password-otp")
-				.permitAll().anyRequest().authenticated());
+	    http.authorizeHttpRequests(auth -> auth
+	            // ✅ Public endpoints
+	            .requestMatchers("/api/v1/auth/**").permitAll()
 
-	
-		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+	            // ✅ ADMIN only
+	            .requestMatchers("/api/v1/doctors/**").hasRole("ADMIN")
+	            .requestMatchers("/api/v1/doctor-availability/**").hasRole("ADMIN")
 
-		return http.build();
+	            // ✅ PATIENT only (examples)
+	            .requestMatchers("/api/v1/appointments/**").hasAnyRole("PATIENT", "ADMIN")
+	            .requestMatchers("/api/v1/reviews/**").hasRole("PATIENT")
+	            .requestMatchers("/api/v1/preferences/**").hasRole("PATIENT")
+
+	            // ✅ Everything else must be authenticated
+	            .anyRequest().authenticated()
+	    );
+
+	    // ✅ JWT Filter
+	    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+	    return http.build();
 	}
-
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder(11);
