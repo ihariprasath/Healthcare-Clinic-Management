@@ -11,7 +11,7 @@ public class AppointmentCreateRequest {
 	private OffsetDateTime slotStart;
 	private OffsetDateTime slotEnd;
 	private String specialization;
-	private Boolean autoAssign; // true/false
+	private Boolean autoAssign; 
 
 	public AppointmentCreateRequest() {
 	}

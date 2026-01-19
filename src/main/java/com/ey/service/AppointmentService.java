@@ -27,7 +27,6 @@ public class AppointmentService {
 	private final DoctorRepository doctorRepository;
 	private final DoctorAvailabilityRepository availabilityRepository;
 
-	// ✅ Correct constructor injection
 	public AppointmentService(AppointmentRepository repo, DoctorRepository doctorRepository,
 			DoctorAvailabilityRepository availabilityRepository) {
 		this.repo = repo;
@@ -88,7 +87,6 @@ public class AppointmentService {
 
 		LocalDate localDate = LocalDate.parse(date);
 
-		// Availability saved as MON/TUE/WED...
 		String day = localDate.getDayOfWeek().toString().substring(0, 3);
 
 		List<Doctor> doctors = doctorRepository.findBySpecializationIgnoreCase(specialization);
@@ -124,16 +122,14 @@ public class AppointmentService {
 	private boolean isDoctorAvailableForSlot(Long doctorId, String specialization, java.time.OffsetDateTime slotStart,
 			java.time.OffsetDateTime slotEnd) {
 
-		// 1) Doctor must exist and match specialization
 		Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
 
 		if (specialization != null && !doctor.getSpecialization().equalsIgnoreCase(specialization)) {
 			return false;
 		}
 
-		// 2) Check DoctorAvailability for that day (MON/TUE)
 		java.time.LocalDate date = slotStart.toLocalDate();
-		String day = date.getDayOfWeek().toString().substring(0, 3); // MON
+		String day = date.getDayOfWeek().toString().substring(0, 3);
 
 		List<DoctorAvailability> availList = availabilityRepository.findByDoctorIdAndDayOfWeek(doctorId, day);
 
@@ -150,7 +146,6 @@ public class AppointmentService {
 			java.time.LocalTime aStart = java.time.LocalTime.parse(a.getStartTime());
 			java.time.LocalTime aEnd = java.time.LocalTime.parse(a.getEndTime());
 
-			// slot must be fully inside availability
 			if ((st.equals(aStart) || st.isAfter(aStart)) && (en.equals(aEnd) || en.isBefore(aEnd))) {
 				withinAnyAvailability = true;
 				break;
@@ -160,7 +155,6 @@ public class AppointmentService {
 		if (!withinAnyAvailability)
 			return false;
 
-		// 3) Conflict check
 		boolean conflict = repo.existsByDoctorIdAndStatusAndSlotStartLessThanAndSlotEndGreaterThan(doctorId,
 				AppointmentStatus.SCHEDULED, slotEnd, slotStart);
 
@@ -179,25 +173,11 @@ public class AppointmentService {
 		Long selectedDoctorId = null;
 		double bestScore = -999999;
 
-		// simple scoring: rating weight + low workload
 		for (Doctor d : doctors) {
 
-			// check availability + conflicts
 			if (!isDoctorAvailableForSlot(d.getId(), specialization, slotStart, slotEnd)) {
 				continue;
 			}
-
-			// workload (appointments count on that date)
-//        java.time.OffsetDateTime from = slotStart.toLocalDate().atStartOfDay().atOffset(slotStart.getOffset());
-//        java.time.OffsetDateTime to = slotStart.toLocalDate().atTime(23,59).atOffset(slotStart.getOffset());
-//
-////        int workload = repo.findDoctorAppointmentsBetween(d.getId(), from, to).size();
-//int workload = repo.findByDoctorIdAndSlotStartBetweenAndStatusNot(
-//        d.getId(),
-//        from,
-//        to,
-//        AppointmentStatus.CANCELLED
-//).size();
 
 			OffsetDateTime from = slotStart.toLocalDate().atStartOfDay().atOffset(slotStart.getOffset());
 
@@ -207,10 +187,8 @@ public class AppointmentService {
 					.findByDoctorIdAndSlotStartBetweenAndStatusNot(d.getId(), from, to, AppointmentStatus.CANCELLED)
 					.size();
 
-			// rating (if you don't have rating yet, keep default)
 			double rating = (d.getAvgRating() == null) ? 4.0 : d.getAvgRating();
 
-			// score: higher rating + less workload
 			double score = (rating * 10) - workload;
 
 			if (score > bestScore) {

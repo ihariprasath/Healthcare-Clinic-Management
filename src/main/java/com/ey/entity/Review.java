@@ -22,13 +22,11 @@ public class Review {
 	private Long doctorId;
 	private Long patientId;
 
-	// rating 1 to 5
 	private Integer rating;
 
 	@Column(length = 1000)
 	private String comment;
 
-	// tags stored as comma-separated: "wait_time,behaviour"
 	private String tags;
 
 	private OffsetDateTime createdAt;

@@ -41,12 +41,10 @@ public class ReviewService {
 			throw new RuntimeException("appointmentId must not be null");
 		}
 
-		// ✅ Prevent duplicate review for same appointment
 		reviewRepo.findByAppointmentId(req.getAppointmentId()).ifPresent(r -> {
 			throw new RuntimeException("Review already submitted for this appointment");
 		});
 
-		// ✅ Validate appointment
 		Appointment appt = appointmentRepo.findById(req.getAppointmentId())
 				.orElseThrow(() -> new RuntimeException("Appointment not found"));
 
@@ -60,7 +58,6 @@ public class ReviewService {
 
 		Long doctorId = appt.getDoctorId();
 
-		// ✅ Create review
 		Review review = new Review();
 		review.setAppointmentId(appt.getId());
 		review.setDoctorId(doctorId);
@@ -74,10 +71,8 @@ public class ReviewService {
 
 		Review saved = reviewRepo.save(review);
 
-		// ✅ Update doctor rating summary
 		updateDoctorRating(doctorId, req.getRating());
 
-		// ✅ NEW: negative review => auto avoid doctor
 		if (req.getRating() <= 2) {
 			prefService.avoidDoctorFromNegativeReview(patientId, doctorId);
 		}
@@ -94,7 +89,7 @@ public class ReviewService {
 
 		double updatedAvg = ((currentAvg * count) + newRating) / (count + 1);
 
-		doctor.setAvgRating(Math.round(updatedAvg * 10.0) / 10.0); // 1 decimal
+		doctor.setAvgRating(Math.round(updatedAvg * 10.0) / 10.0);
 		doctor.setRatingsCount(count + 1);
 
 		doctorRepo.save(doctor);

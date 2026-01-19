@@ -33,7 +33,6 @@ public class PrescriptionController {
 		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "Prescription fetched"));
 	}
 
-	// ✅ keeping endpoint same as spec - but returns JSON instead of PDF
 	@GetMapping("/{id}/pdf")
 	public ResponseEntity<ApiResponse<Prescription>> pdf(@PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "PDF skipped - returning JSON"));

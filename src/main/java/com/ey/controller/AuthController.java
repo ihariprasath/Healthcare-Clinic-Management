@@ -58,7 +58,7 @@ public ResponseEntity<ApiResponse<Object>> changePassword(
         Authentication authentication,
         @Valid @RequestBody ChangePasswordRequest req
 ) {
-    String email = authentication.getName(); // subject from JWT filter
+    String email = authentication.getName();
     String msg = service.changePassword(email, req);
     return ResponseEntity.ok(ApiResponse.ok(null, msg));
 }

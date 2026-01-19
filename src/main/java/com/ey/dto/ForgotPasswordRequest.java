@@ -10,10 +10,8 @@ public class ForgotPasswordRequest {
 	@NotBlank
 	private String email;
 
-	// "EMAIL" or "SMS" - for now keep EMAIL only
 	private String channel = "EMAIL";
 
-	// "OTP" or "TOKEN" - we implement OTP only now
 	private String mode = "OTP";
 
 	public ForgotPasswordRequest() {

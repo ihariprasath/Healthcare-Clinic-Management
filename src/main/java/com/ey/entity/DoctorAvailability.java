@@ -17,13 +17,10 @@ public class DoctorAvailability {
 
 	private Long doctorId;
 
-	// MON, TUE, WED, THU, FRI, SAT, SUN
 	private String dayOfWeek;
 
-	// "09:00"
 	private String startTime;
 
-	// "13:00"
 	private String endTime;
 
 	public DoctorAvailability() {

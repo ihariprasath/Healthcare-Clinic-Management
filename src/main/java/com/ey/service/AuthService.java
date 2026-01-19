@@ -1,5 +1,4 @@
 
-
 package com.ey.service;
 
 import java.time.OffsetDateTime;
@@ -24,128 +23,119 @@ import com.ey.repository.UserRepository;
 @Service
 public class AuthService {
 
-    private final UserRepository repo;
-    private final PasswordEncoder encoder;
-    private final JwtService jwt;
+	private final UserRepository repo;
+	private final PasswordEncoder encoder;
+	private final JwtService jwt;
 
-    public AuthService(UserRepository repo, PasswordEncoder encoder, JwtService jwt) {
-        this.repo = repo;
-        this.encoder = encoder;
-        this.jwt = jwt;
-    }
+	public AuthService(UserRepository repo, PasswordEncoder encoder, JwtService jwt) {
+		this.repo = repo;
+		this.encoder = encoder;
+		this.jwt = jwt;
+	}
 
-    public AuthResponse register(RegisterRequest req) {
-        if (repo.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email already registered");
-        }
+	public AuthResponse register(RegisterRequest req) {
+		if (repo.existsByEmail(req.getEmail())) {
+			throw new RuntimeException("Email already registered");
+		}
 
-        User u = new User();
-        u.setName(req.getName());
-        u.setEmail(req.getEmail());
-        u.setPassword(encoder.encode(req.getPassword()));
-        u.setRoles(Set.of(Role.PATIENT));
-        repo.save(u);
+		User u = new User();
+		u.setName(req.getName());
+		u.setEmail(req.getEmail());
+		u.setPassword(encoder.encode(req.getPassword()));
+		u.setRoles(Set.of(Role.PATIENT));
+		repo.save(u);
 
-        return build(u);
-    }
+		return build(u);
+	}
 
-    public AuthResponse login(LoginRequest req) {
-        User u = repo.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email/password"));
+	public AuthResponse login(LoginRequest req) {
+		User u = repo.findByEmail(req.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email/password"));
 
-        if (!encoder.matches(req.getPassword(), u.getPassword())) {
-            throw new RuntimeException("Invalid email/password");
-        }
+		if (!encoder.matches(req.getPassword(), u.getPassword())) {
+			throw new RuntimeException("Invalid email/password");
+		}
 
-        return build(u);
-    }
-    
-    
-    public String forgotPasswordOtp(ForgotPasswordRequest req) {
+		return build(u);
+	}
 
-    // IMPORTANT: do not reveal if user exists (security)
-    User user = repo.findByEmail(req.getEmail()).orElse(null);
+	public String forgotPasswordOtp(ForgotPasswordRequest req) {
 
-    if (user == null) {
-        return "If the account exists, a reset OTP will be sent.";
-    }
+		User user = repo.findByEmail(req.getEmail()).orElse(null);
 
-    String otp = String.format("%06d", new Random().nextInt(999999));
+		if (user == null) {
+			return "If the account exists, a reset OTP will be sent.";
+		}
 
-    user.setResetOtp(otp);
-    user.setResetOtpExpiry(OffsetDateTime.now().plusMinutes(10)); // 10 mins
-    user.setResetOtpAttempts(0);
-    repo.save(user);
+		String otp = String.format("%06d", new Random().nextInt(999999));
 
-    // ✅ For training/demo: print OTP in console
-    System.out.println("✅ Password Reset OTP for " + req.getEmail() + " is: " + otp);
+		user.setResetOtp(otp);
+		user.setResetOtpExpiry(OffsetDateTime.now().plusMinutes(10));
+		user.setResetOtpAttempts(0);
+		repo.save(user);
 
-    return "If the account exists, a reset OTP will be sent.";
-}
+		System.out.println("✅ Password Reset OTP for " + req.getEmail() + " is: " + otp);
 
-public String resetPasswordWithOtp(ResetPasswordOtpRequest req) {
+		return "If the account exists, a reset OTP will be sent.";
+	}
 
-    User user = repo.findByEmail(req.getEmail())
-            .orElseThrow(() -> new RuntimeException("Invalid email/OTP"));
+	public String resetPasswordWithOtp(ResetPasswordOtpRequest req) {
 
-    if (user.getResetOtp() == null || user.getResetOtpExpiry() == null) {
-        throw new RuntimeException("OTP not requested");
-    }
+		User user = repo.findByEmail(req.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email/OTP"));
 
-    if (OffsetDateTime.now().isAfter(user.getResetOtpExpiry())) {
-        throw new RuntimeException("OTP expired. Please request again.");
-    }
+		if (user.getResetOtp() == null || user.getResetOtpExpiry() == null) {
+			throw new RuntimeException("OTP not requested");
+		}
 
-    if (user.getResetOtpAttempts() >= 5) {
-        throw new RuntimeException("Too many wrong attempts. OTP locked.");
-    }
+		if (OffsetDateTime.now().isAfter(user.getResetOtpExpiry())) {
+			throw new RuntimeException("OTP expired. Please request again.");
+		}
 
-    if (!req.getOtp().equals(user.getResetOtp())) {
-        user.setResetOtpAttempts(user.getResetOtpAttempts() + 1);
-        repo.save(user);
-        throw new RuntimeException("Invalid OTP");
-    }
+		if (user.getResetOtpAttempts() >= 5) {
+			throw new RuntimeException("Too many wrong attempts. OTP locked.");
+		}
 
-    // ✅ OTP correct → reset password
-    user.setPassword(encoder.encode(req.getNewPassword()));
+		if (!req.getOtp().equals(user.getResetOtp())) {
+			user.setResetOtpAttempts(user.getResetOtpAttempts() + 1);
+			repo.save(user);
+			throw new RuntimeException("Invalid OTP");
+		}
 
-    // ✅ invalidate otp
-    user.setResetOtp(null);
-    user.setResetOtpExpiry(null);
-    user.setResetOtpAttempts(0);
+		user.setPassword(encoder.encode(req.getNewPassword()));
 
-    repo.save(user);
+		user.setResetOtp(null);
+		user.setResetOtpExpiry(null);
+		user.setResetOtpAttempts(0);
 
-    return "Password reset successful";
-}
+		repo.save(user);
 
-public String changePassword(String email, ChangePasswordRequest req) {
+		return "Password reset successful";
+	}
 
-    User user = repo.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+	public String changePassword(String email, ChangePasswordRequest req) {
 
-    if (!encoder.matches(req.getCurrentPassword(), user.getPassword())) {
-        throw new RuntimeException("Current password incorrect");
-    }
+		User user = repo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
-    user.setPassword(encoder.encode(req.getNewPassword()));
-    repo.save(user);
+		if (!encoder.matches(req.getCurrentPassword(), user.getPassword())) {
+			throw new RuntimeException("Current password incorrect");
+		}
 
-    return "Password changed successfully";
-}
-    
+		user.setPassword(encoder.encode(req.getNewPassword()));
+		repo.save(user);
 
-    private AuthResponse build(User u) {
-        String token = jwt.generateToken(u.getEmail());
+		return "Password changed successfully";
+	}
 
-        AuthResponse res = new AuthResponse();
-        res.setMessage("Authentication successful");
-        res.setAccessToken(token);
-        res.setExpiresAt(OffsetDateTime.now().plusHours(1));
+	private AuthResponse build(User u) {
+		String token = jwt.generateToken(u.getEmail());
 
-        res.setId(u.getId());
-        res.setName(u.getName());
-        res.setRoles(u.getRoles().stream().map(Enum::name).collect(Collectors.toSet()));
-        return res;
-    }
+		AuthResponse res = new AuthResponse();
+		res.setMessage("Authentication successful");
+		res.setAccessToken(token);
+		res.setExpiresAt(OffsetDateTime.now().plusHours(1));
+
+		res.setId(u.getId());
+		res.setName(u.getName());
+		res.setRoles(u.getRoles().stream().map(Enum::name).collect(Collectors.toSet()));
+		return res;
+	}
 }

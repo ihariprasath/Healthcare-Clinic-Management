@@ -33,7 +33,6 @@ public class DoctorAvailabilityService {
 
 		Doctor doctor = doctorRepo.findById(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-		// delete existing timings
 		repo.deleteByDoctorId(doctor.getId());
 
 		List<DoctorAvailability> saved = new ArrayList<>();

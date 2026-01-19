@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-//import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "patient_doctor_preferences", uniqueConstraints = @UniqueConstraint(columnNames = { "patient_id",
@@ -26,9 +25,9 @@ public class PatientDoctorPreference {
 	@Column(name = "doctor_id")
 	private Long doctorId;
 
-	private Boolean avoid; // true = avoid, false = allow
+	private Boolean avoid;
 
-	private String reason; // MANUAL / NEGATIVE_REVIEW
+	private String reason;
 
 	private LocalDateTime updatedAt;
 

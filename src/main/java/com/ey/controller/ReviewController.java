@@ -35,8 +35,6 @@ public class ReviewController {
 		String email = auth.getName();
 
 		User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-
-		// ✅ This must exist in User entity
 		Long patientId = user.getPatientId();
 
 		Review saved = service.createReview(patientId, req);

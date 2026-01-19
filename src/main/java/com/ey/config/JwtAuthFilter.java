@@ -1,5 +1,4 @@
 
-
 package com.ey.config;
 
 import java.io.IOException;
@@ -22,43 +21,40 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class JwtAuthFilter extends GenericFilter {
 
-    private final JwtService jwtService;
-    private final UserRepository userRepo;
+	private final JwtService jwtService;
+	private final UserRepository userRepo;
 
-    public JwtAuthFilter(JwtService jwtService, UserRepository userRepo) {
-        this.jwtService = jwtService;
-        this.userRepo = userRepo;
-    }
+	public JwtAuthFilter(JwtService jwtService, UserRepository userRepo) {
+		this.jwtService = jwtService;
+		this.userRepo = userRepo;
+	}
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        String auth = req.getHeader("Authorization");
+		HttpServletRequest req = (HttpServletRequest) request;
+		String auth = req.getHeader("Authorization");
 
-        if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring(7);
+		if (auth != null && auth.startsWith("Bearer ")) {
+			String token = auth.substring(7);
 
-            if (jwtService.validate(token)) {
-                String email = jwtService.extractEmail(token);
+			if (jwtService.validate(token)) {
+				String email = jwtService.extractEmail(token);
 
-                User user = userRepo.findByEmail(email).orElse(null);
-                if (user != null) {
+				User user = userRepo.findByEmail(email).orElse(null);
+				if (user != null) {
 
-                    var authorities = user.getRoles().stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                            .toList();
+					var authorities = user.getRoles().stream()
+							.map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())).toList();
 
-                    var authentication = new UsernamePasswordAuthenticationToken(
-                            email, null, authorities
-                    );
+					var authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
-            }
-        }
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				}
+			}
+		}
 
-        chain.doFilter(request, response);
-    }
+		chain.doFilter(request, response);
+	}
 }

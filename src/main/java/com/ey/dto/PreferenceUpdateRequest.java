@@ -5,8 +5,8 @@ public class PreferenceUpdateRequest {
 
 	private Long patientId;
 	private Long doctorId;
-	private Boolean avoid; // true/false
-	private String reason; // MANUAL / NEGATIVE_REVIEW
+	private Boolean avoid; 
+	private String reason;
 
 	public PreferenceUpdateRequest() {
 	}

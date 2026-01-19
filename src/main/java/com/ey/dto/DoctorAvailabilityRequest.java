@@ -3,9 +3,9 @@ package com.ey.dto;
 
 public class DoctorAvailabilityRequest {
 
-	private String dayOfWeek; // MON...
-	private String startTime; // "09:00"
-	private String endTime; // "13:00"
+	private String dayOfWeek;
+	private String startTime;
+	private String endTime;
 
 	public DoctorAvailabilityRequest() {
 	}
