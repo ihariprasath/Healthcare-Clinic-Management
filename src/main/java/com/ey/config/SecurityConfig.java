@@ -29,23 +29,35 @@ public class SecurityConfig {
 	    );
 
 	    http.authorizeHttpRequests(auth -> auth
-	            // ✅ Public endpoints
-	            .requestMatchers("/api/v1/auth/**").permitAll()
 
-	            // ✅ ADMIN only
+	            //  Public endpoints
+	            .requestMatchers("/api/v1/auth/**").permitAll()
+	            .requestMatchers("/api/v1/auth/register-admin").permitAll()
+
+	            // ADMIN only
 	            .requestMatchers("/api/v1/doctors/**").hasRole("ADMIN")
 	            .requestMatchers("/api/v1/doctor-availability/**").hasRole("ADMIN")
 
-	            // ✅ PATIENT only (examples)
-	            .requestMatchers("/api/v1/appointments/**").hasAnyRole("PATIENT", "ADMIN")
+	            //  PATIENT only
 	            .requestMatchers("/api/v1/reviews/**").hasRole("PATIENT")
 	            .requestMatchers("/api/v1/preferences/**").hasRole("PATIENT")
 
-	            // ✅ Everything else must be authenticated
+	            //  PATIENT + RECEPTIONIST (Appointment Booking)
+	            .requestMatchers("/api/v1/appointments/**").hasAnyRole("PATIENT", "RECEPTIONIST", "ADMIN")
+
+	            // DOCTOR only (encounters / prescriptions)
+	            .requestMatchers("/api/v1/encounters/**").hasAnyRole("DOCTOR", "ADMIN")
+	            .requestMatchers("/api/v1/prescriptions/**").hasAnyRole("DOCTOR", "ADMIN")
+
+	            // RECEPTIONIST only (documents upload, check-in, billing)
+	            .requestMatchers("/api/v1/patients/*/documents/**").hasAnyRole("RECEPTIONIST", "ADMIN")
+	            .requestMatchers("/api/v1/billing/**").hasAnyRole("RECEPTIONIST", "ADMIN")
+
+	            // Everything else must be authenticated
 	            .anyRequest().authenticated()
 	    );
 
-	    // ✅ JWT Filter
+	    // JWT Filter
 	    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 	    return http.build();
