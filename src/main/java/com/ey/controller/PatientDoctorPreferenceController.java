@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ey.dto.PreferenceUpdateRequest;
 import com.ey.entity.PatientDoctorPreference;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.PatientDoctorPreferenceService;
 
 @RestController
@@ -25,12 +25,12 @@ public class PatientDoctorPreferenceController {
 	}
 
 	@PutMapping
-	public ApiResponse<PatientDoctorPreference> update(@RequestBody PreferenceUpdateRequest req) {
-		return ApiResponse.ok(service.updatePreference(req), "Preference updated");
+	public ApiErrorResponse<PatientDoctorPreference> update(@RequestBody PreferenceUpdateRequest req) {
+		return ApiErrorResponse.ok(service.updatePreference(req), "Preference updated");
 	}
 
 	@GetMapping("/patient/{patientId}")
-	public ApiResponse<List<PatientDoctorPreference>> getByPatient(@PathVariable Long patientId) {
-		return ApiResponse.ok(service.getByPatient(patientId), "Preferences fetched");
+	public ApiErrorResponse<List<PatientDoctorPreference>> getByPatient(@PathVariable Long patientId) {
+		return ApiErrorResponse.ok(service.getByPatient(patientId), "Preferences fetched");
 	}
 }

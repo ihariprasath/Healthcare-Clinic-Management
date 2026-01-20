@@ -59,7 +59,7 @@ public class AuthService {
 //		if (repo.existsByRolesContaining(Role.ADMIN)) {
 //			throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Admin already exists, can't create another admin");
 //		}
-		// ✅ verify secret key
+		
 		if (req.getSecretKey() == null || !req.getSecretKey().equals(adminSecret)) {
 			throw new RuntimeException("Invalid admin secret key");
 		}
@@ -72,7 +72,7 @@ public class AuthService {
 		u.setName(req.getName());
 		u.setEmail(req.getEmail());
 		u.setPassword(encoder.encode(req.getPassword()));
-		u.setRoles(Set.of(Role.ADMIN)); // ✅ ADMIN
+		u.setRoles(Set.of(Role.ADMIN));
 		repo.save(u);
 
 		return build(u);

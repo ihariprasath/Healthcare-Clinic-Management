@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ey.entity.MedicalDocument;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.DocumentService;
 
 @RestController
@@ -30,16 +30,16 @@ public class DocumentController {
 	}
 
 	@PostMapping("/patients/{id}/documents")
-	public ResponseEntity<ApiResponse<MedicalDocument>> upload(@PathVariable Long id, @RequestParam String type,
+	public ResponseEntity<ApiErrorResponse<MedicalDocument>> upload(@PathVariable Long id, @RequestParam String type,
 			@RequestParam MultipartFile file) throws Exception {
 
 		return ResponseEntity.status(201)
-				.body(ApiResponse.created(service.upload(id, type, file), "Document uploaded"));
+				.body(ApiErrorResponse.created(service.upload(id, type, file), "Document uploaded"));
 	}
 
 	@GetMapping("/patients/{id}/documents")
-	public ResponseEntity<ApiResponse<List<MedicalDocument>>> list(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.list(id), "Documents list"));
+	public ResponseEntity<ApiErrorResponse<List<MedicalDocument>>> list(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.list(id), "Documents list"));
 	}
 
 	@GetMapping("/documents/{docId}/download")

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ey.entity.Invoice;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.BillingService;
 
 @RestController
@@ -24,27 +24,27 @@ public class BillingController {
 	}
 
 	@PostMapping("/invoices")
-	public ResponseEntity<ApiResponse<Invoice>> createInvoice(@RequestBody Invoice inv) {
-		return ResponseEntity.status(201).body(ApiResponse.created(service.create(inv), "Invoice created"));
+	public ResponseEntity<ApiErrorResponse<Invoice>> createInvoice(@RequestBody Invoice inv) {
+		return ResponseEntity.status(201).body(ApiErrorResponse.created(service.create(inv), "Invoice created"));
 	}
 
 	@GetMapping("/invoices/{id}")
-	public ResponseEntity<ApiResponse<Invoice>> get(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "Invoice fetched"));
+	public ResponseEntity<ApiErrorResponse<Invoice>> get(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "Invoice fetched"));
 	}
 
 	@PostMapping("/invoices/{id}/pay")
-	public ResponseEntity<ApiResponse<Invoice>> pay(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.pay(id), "Payment success"));
+	public ResponseEntity<ApiErrorResponse<Invoice>> pay(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.pay(id), "Payment success"));
 	}
 
 	@PostMapping("/invoices/{id}/refund")
-	public ResponseEntity<ApiResponse<Invoice>> refund(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.refund(id), "Refund success"));
+	public ResponseEntity<ApiErrorResponse<Invoice>> refund(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.refund(id), "Refund success"));
 	}
 
 	@GetMapping("/invoices/{id}/pdf")
-	public ResponseEntity<ApiResponse<Invoice>> pdf(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "PDF skipped - returning JSON"));
+	public ResponseEntity<ApiErrorResponse<Invoice>> pdf(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "PDF skipped - returning JSON"));
 	}
 }

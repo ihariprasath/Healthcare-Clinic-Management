@@ -1,0 +1,17 @@
+package com.ey.exception;
+
+public enum ErrorCode {
+    VALIDATION_ERROR,
+    NOT_FOUND,
+    CONFLICT,
+    FORBIDDEN,
+    UNAUTHORIZED,
+    INTERNAL_ERROR,
+
+   
+    SLOT_ALREADY_BOOKED,
+    APPOINTMENT_NOT_FOUND,
+    PATIENT_NOT_FOUND,
+    DOCTOR_NOT_FOUND,
+    REVIEW_NOT_ALLOWED
+}

@@ -54,7 +54,6 @@ public class SecurityConfig {
 	            .requestMatchers("/api/v1/patients/*/documents/**").hasAnyRole("RECEPTIONIST", "ADMIN")
 	            .requestMatchers("/api/v1/billing/**").hasAnyRole("RECEPTIONIST", "ADMIN")
 
-	            // Everything else must be authenticated
 	            .anyRequest().authenticated()
 	    );
 

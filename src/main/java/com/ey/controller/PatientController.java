@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ey.entity.Patient;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.PatientService;
 
 @RestController
@@ -25,17 +25,17 @@ public class PatientController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<Patient>> create(@RequestBody Patient p) {
-		return ResponseEntity.status(201).body(ApiResponse.created(service.create(p), "Patient created"));
+	public ResponseEntity<ApiErrorResponse<Patient>> create(@RequestBody Patient p) {
+		return ResponseEntity.status(201).body(ApiErrorResponse.created(service.create(p), "Patient created"));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<ApiResponse<Patient>> update(@PathVariable Long id, @RequestBody Patient p) {
-		return ResponseEntity.ok(ApiResponse.ok(service.update(id, p), "Patient updated"));
+	public ResponseEntity<ApiErrorResponse<Patient>> update(@PathVariable Long id, @RequestBody Patient p) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.update(id, p), "Patient updated"));
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<Patient>> get(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "Patient fetched"));
+	public ResponseEntity<ApiErrorResponse<Patient>> get(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "Patient fetched"));
 	}
 }

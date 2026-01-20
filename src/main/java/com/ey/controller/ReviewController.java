@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ey.dto.ReviewCreateRequest;
 import com.ey.entity.Review;
 import com.ey.entity.User;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.repository.UserRepository;
 import com.ey.service.ReviewService;
 
@@ -30,7 +30,7 @@ public class ReviewController {
 	}
 
 	@PostMapping
-	public ApiResponse<Review> create(Authentication auth, @RequestBody ReviewCreateRequest req) {
+	public ApiErrorResponse<Review> create(Authentication auth, @RequestBody ReviewCreateRequest req) {
 
 		String email = auth.getName();
 
@@ -39,23 +39,23 @@ public class ReviewController {
 
 		Review saved = service.createReview(patientId, req);
 
-		return ApiResponse.ok(saved, "Review submitted");
+		return ApiErrorResponse.ok(saved, "Review submitted");
 	}
 
 	@GetMapping
-	public ApiResponse<List<Review>> getAll() {
+	public ApiErrorResponse<List<Review>> getAll() {
 		List<Review> reviews = service.getAll();
-		return ApiResponse.ok(reviews, "Reviews fetched");
+		return ApiErrorResponse.ok(reviews, "Reviews fetched");
 	}
 
 	@GetMapping("/doctor/{doctorId}")
-	public ApiResponse<List<Review>> getDoctorReviews(@PathVariable Long doctorId) {
+	public ApiErrorResponse<List<Review>> getDoctorReviews(@PathVariable Long doctorId) {
 		List<Review> reviews = service.getByDoctor(doctorId);
-		return ApiResponse.ok(reviews, "Doctor reviews fetched");
+		return ApiErrorResponse.ok(reviews, "Doctor reviews fetched");
 	}
 
 	@GetMapping("/my")
-	public ApiResponse<List<Review>> my(Authentication auth) {
+	public ApiErrorResponse<List<Review>> my(Authentication auth) {
 
 		String email = auth.getName();
 
@@ -65,6 +65,6 @@ public class ReviewController {
 
 		List<Review> reviews = service.getMyReviews(patientId);
 
-		return ApiResponse.ok(reviews, "My reviews fetched");
+		return ApiErrorResponse.ok(reviews, "My reviews fetched");
 	}
 }

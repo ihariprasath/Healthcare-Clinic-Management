@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ey.entity.Prescription;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.PrescriptionService;
 
 @RestController
@@ -24,17 +24,17 @@ public class PrescriptionController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<Prescription>> create(@RequestBody Prescription p) {
-		return ResponseEntity.status(201).body(ApiResponse.created(service.create(p), "Prescription created"));
+	public ResponseEntity<ApiErrorResponse<Prescription>> create(@RequestBody Prescription p) {
+		return ResponseEntity.status(201).body(ApiErrorResponse.created(service.create(p), "Prescription created"));
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<Prescription>> get(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "Prescription fetched"));
+	public ResponseEntity<ApiErrorResponse<Prescription>> get(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "Prescription fetched"));
 	}
 
 	@GetMapping("/{id}/pdf")
-	public ResponseEntity<ApiResponse<Prescription>> pdf(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "PDF skipped - returning JSON"));
+	public ResponseEntity<ApiErrorResponse<Prescription>> pdf(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "PDF skipped - returning JSON"));
 	}
 }

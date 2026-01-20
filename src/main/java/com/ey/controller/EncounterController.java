@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ey.entity.Encounter;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.EncounterService;
 
 @RestController
@@ -24,12 +24,12 @@ public class EncounterController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<Encounter>> create(@RequestBody Encounter e) {
-		return ResponseEntity.status(201).body(ApiResponse.created(service.create(e), "Encounter created"));
+	public ResponseEntity<ApiErrorResponse<Encounter>> create(@RequestBody Encounter e) {
+		return ResponseEntity.status(201).body(ApiErrorResponse.created(service.create(e), "Encounter created"));
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<Encounter>> get(@PathVariable Long id) {
-		return ResponseEntity.ok(ApiResponse.ok(service.get(id), "Encounter fetched"));
+	public ResponseEntity<ApiErrorResponse<Encounter>> get(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.get(id), "Encounter fetched"));
 	}
 }

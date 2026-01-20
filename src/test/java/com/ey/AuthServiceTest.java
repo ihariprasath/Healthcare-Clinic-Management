@@ -41,9 +41,6 @@ class AuthServiceTest {
         authService = new AuthService(repo, encoder, jwt);
     }
 
-    // ----------------------------------------------------
-    // ✅ REGISTER TESTS
-    // ----------------------------------------------------
 
     @Test
     void register_success() {
@@ -83,10 +80,7 @@ class AuthServiceTest {
         verify(repo, never()).save(any(User.class));
     }
 
-    // ----------------------------------------------------
-    // ✅ LOGIN TESTS
-    // ----------------------------------------------------
-
+    
     @Test
     void login_success() {
 
@@ -149,10 +143,7 @@ class AuthServiceTest {
         assertEquals("Invalid email/password", ex.getMessage());
     }
 
-    // ----------------------------------------------------
-    // ✅ FORGOT PASSWORD OTP TESTS
-    // ----------------------------------------------------
-
+   
     @Test
     void forgotPasswordOtp_userNotFound_shouldReturnGenericMessage() {
 
@@ -189,9 +180,7 @@ class AuthServiceTest {
         verify(repo, times(1)).save(u);
     }
 
-    // ----------------------------------------------------
-    // ✅ RESET PASSWORD WITH OTP TESTS
-    // ----------------------------------------------------
+  
 
     @Test
     void resetPasswordWithOtp_success_validOtp() {
@@ -213,12 +202,12 @@ class AuthServiceTest {
 
         assertEquals("Password reset successful", msg);
 
-        // ✅ otp invalidated
+        
         assertNull(u.getResetOtp());
         assertNull(u.getResetOtpExpiry());
         assertEquals(0, u.getResetOtpAttempts());
 
-        // ✅ password updated
+       
         assertTrue(encoder.matches("NewPassword@123", u.getPassword()));
 
         verify(repo, times(1)).save(u);
@@ -312,10 +301,6 @@ class AuthServiceTest {
 
         assertEquals("Too many wrong attempts. OTP locked.", ex.getMessage());
     }
-
-    // ----------------------------------------------------
-    // ✅ CHANGE PASSWORD TESTS
-    // ----------------------------------------------------
 
     @Test
     void changePassword_success() {

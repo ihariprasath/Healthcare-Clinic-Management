@@ -1,5 +1,4 @@
 
-
 package com.ey.controller;
 
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ import com.ey.dto.LoginRequest;
 import com.ey.dto.RegisterAdminRequest;
 import com.ey.dto.RegisterRequest;
 import com.ey.dto.ResetPasswordOtpRequest;
-import com.ey.exception.ApiResponse;
+import com.ey.exception.ApiErrorResponse;
 import com.ey.service.AuthService;
 import com.ey.service.TokenBlacklistService;
 
@@ -27,62 +26,61 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final AuthService service;
-    private final TokenBlacklistService tokenBlacklistService;
+	private final AuthService service;
+	private final TokenBlacklistService tokenBlacklistService;
 
-    public AuthController(AuthService service,TokenBlacklistService tokenBlacklistService) {
-        this.service = service;
-        this.tokenBlacklistService=tokenBlacklistService;
-    }
+	public AuthController(AuthService service, TokenBlacklistService tokenBlacklistService) {
+		this.service = service;
+		this.tokenBlacklistService = tokenBlacklistService;
+	}
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest req) {
-        return ResponseEntity.status(201)
-                .body(ApiResponse.created(service.register(req), "User registered"));
-    }
-    @PostMapping("/register-admin")
-    public ResponseEntity<AuthResponse> registerAdmin(@RequestBody RegisterAdminRequest req) {
-    	return ResponseEntity.status(201).body(service.registerAdmin(req));
+	@PostMapping("/register")
+	public ResponseEntity<ApiErrorResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest req) {
+		return ResponseEntity.status(201).body(ApiErrorResponse.created(service.register(req), "User registered"));
+	}
+
+	@PostMapping("/register-admin")
+	public ResponseEntity<AuthResponse> registerAdmin(@RequestBody RegisterAdminRequest req) {
+		return ResponseEntity.status(201).body(service.registerAdmin(req));
 //        return ApiResponse.created(service.registerAdmin(req), "Admin created");
-    }
+	}
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest req) {
-        return ResponseEntity.ok(ApiResponse.ok(service.login(req), "Login success"));
-    }
-    
-    @PostMapping("/forgot-password")
-public ResponseEntity<ApiResponse<Object>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest req) {
-    String msg = service.forgotPasswordOtp(req);
-    return ResponseEntity.ok(ApiResponse.ok(null, msg));
-}
+	@PostMapping("/login")
+	public ResponseEntity<ApiErrorResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest req) {
+		return ResponseEntity.ok(ApiErrorResponse.ok(service.login(req), "Login success"));
+	}
 
-@PostMapping("/reset-password-otp")
-public ResponseEntity<ApiResponse<Object>> resetPasswordOtp(@Valid @RequestBody ResetPasswordOtpRequest req) {
-    String msg = service.resetPasswordWithOtp(req);
-    return ResponseEntity.ok(ApiResponse.ok(null, msg));
-}
+	@PostMapping("/forgot-password")
+	public ResponseEntity<ApiErrorResponse<Object>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest req) {
+		String msg = service.forgotPasswordOtp(req);
+		return ResponseEntity.ok(ApiErrorResponse.ok(null, msg));
+	}
 
-@PostMapping("/change-password")
-public ResponseEntity<ApiResponse<Object>> changePassword(
-        Authentication authentication,
-        @Valid @RequestBody ChangePasswordRequest req
-) {
-    String email = authentication.getName();
-    String msg = service.changePassword(email, req);
-    return ResponseEntity.ok(ApiResponse.ok(null, msg));
-}
-@PostMapping("/logout")
-public ApiResponse<String> logout(HttpServletRequest request) {
+	@PostMapping("/reset-password-otp")
+	public ResponseEntity<ApiErrorResponse<Object>> resetPasswordOtp(@Valid @RequestBody ResetPasswordOtpRequest req) {
+		String msg = service.resetPasswordWithOtp(req);
+		return ResponseEntity.ok(ApiErrorResponse.ok(null, msg));
+	}
 
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        throw new RuntimeException("Missing token");
-    }
+	@PostMapping("/change-password")
+	public ResponseEntity<ApiErrorResponse<Object>> changePassword(Authentication authentication,
+			@Valid @RequestBody ChangePasswordRequest req) {
+		String email = authentication.getName();
+		String msg = service.changePassword(email, req);
+		return ResponseEntity.ok(ApiErrorResponse.ok(null, msg));
+	}
 
-    String token = authHeader.substring(7);
-    tokenBlacklistService.blacklist(token);
+	@PostMapping("/logout")
+	public ApiErrorResponse<String> logout(HttpServletRequest request) {
 
-    return ApiResponse.ok("Logged out", "Logout successful");
-}
+		String authHeader = request.getHeader("Authorization");
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new RuntimeException("Missing token");
+		}
+
+		String token = authHeader.substring(7);
+		tokenBlacklistService.blacklist(token);
+
+		return ApiErrorResponse.ok("Logged out", "Logout successful");
+	}
 }
