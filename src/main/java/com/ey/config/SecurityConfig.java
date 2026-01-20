@@ -50,6 +50,7 @@ public class SecurityConfig {
 	            .requestMatchers("/api/v1/prescriptions/**").hasAnyRole("DOCTOR", "ADMIN")
 
 	            // RECEPTIONIST only (documents upload, check-in, billing)
+	            .requestMatchers("/api/v1/documents/**").hasAnyRole("RECEPTIONIST", "ADMIN")
 	            .requestMatchers("/api/v1/patients/*/documents/**").hasAnyRole("RECEPTIONIST", "ADMIN")
 	            .requestMatchers("/api/v1/billing/**").hasAnyRole("RECEPTIONIST", "ADMIN")
 
